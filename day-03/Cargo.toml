@@ -1,0 +1,11 @@
+[package]
+name = "day-03"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "day-03"
+path = "src/bin/main.rs"
+
+[dependencies]
+regex = {workspace = true}

@@ -1,0 +1,7 @@
+[workspace]
+resolver = "2"
+members = ["day-01", "day-02", "day-03"]
+
+[workspace.dependencies]
+itertools = "0.13.0"
+regex = "1.11.1"

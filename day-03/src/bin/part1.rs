@@ -2,6 +2,7 @@ use regex::Regex;
 
 pub fn multiply(data: &str) -> i32 {
     let mut total = 0;
+
     let re = Regex::new(r"mul\((\d+),(\d+)\)").unwrap();
 
     for cap in re.captures_iter(data) {

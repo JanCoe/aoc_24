@@ -2,10 +2,8 @@ use itertools::Itertools;
 use std::collections::BTreeMap;
 use std::ops::RangeInclusive;
 
-pub fn word_search(data: &str) -> i32 {
-    let mut total = 0;
-
-    let grid: BTreeMap<(isize, isize), char> = data
+pub fn create_grid(data: &str) -> BTreeMap<(isize, isize), char> {
+    data
         .lines()
         .enumerate()
         .flat_map(|(row, line)| {
@@ -13,7 +11,13 @@ pub fn word_search(data: &str) -> i32 {
                 .enumerate()
                 .map(move |(col, ch)| ((row as isize, col as isize), ch))
         })
-        .collect();
+        .collect()
+}
+
+pub fn word_search(data: &str) -> i32 {
+    let mut total = 0;
+
+    let grid = create_grid(data);
 
     let values: RangeInclusive<isize> = -1..=1;
     let directions = values.clone().into_iter().cartesian_product(values);

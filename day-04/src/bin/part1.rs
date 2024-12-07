@@ -16,27 +16,25 @@ pub fn word_search(data: &str) -> i32 {
         .collect();
 
     let values: RangeInclusive<isize> = -1..=1;
-
     let directions = values.clone().into_iter().cartesian_product(values);
 
     for ((row, col), &ch) in &grid {
-        if ch == 'X' {
-            for (row_inc, col_inc) in directions.clone() {
-                let next = grid.get(&(row+row_inc, col+col_inc)).unwrap_or(&'E');
-                if next == &'M' {
-                    let next = grid.get(&(row + 2*row_inc, col + 2*col_inc)).unwrap_or(&'E');
-                    if next == &'A' {
-                        let next = grid.get(&(row + 3*row_inc, col + 3*col_inc)).unwrap_or(&'E');
-                        if next == &'S' {
-                            total += 1;
-                        }
-                    }
-
-                }
+        if ch != 'X' {
+            continue;
+        }
+        for (row_inc, col_inc) in directions.clone() {
+            if *grid.get(&(row + 1 * row_inc, col + 1 * col_inc)).unwrap_or(&'E') != 'M' {
+                continue;
             }
+            if *grid.get(&(row + 2 * row_inc, col + 2 * col_inc)).unwrap_or(&'E') != 'A' {
+                continue;
+            }
+            if *grid.get(&(row + 3 * row_inc, col + 3 * col_inc)).unwrap_or(&'E') != 'S' {
+                continue;
+            }
+            total += 1;
         }
     }
-
     total
 }
 

@@ -1,28 +1,20 @@
 use crate::part1::create_grid;
 
-pub fn word_search(data: &str) -> i32 {
-    let mut total = 0;
-
+pub fn word_search(data: &str) -> usize {
     let grid = create_grid(data);
 
-    for ((row, col), &ch) in &grid {
-        if ch != 'A' {
-            continue;
-        }
+    grid.iter()
+        .filter(|(_, &ch)| ch == 'A')
+        .filter(|((row, col), _)| {
+            let up_l = *grid.get(&(row - 1, col - 1)).unwrap_or(&'E');
+            let up_r = *grid.get(&(row - 1, col + 1)).unwrap_or(&'E');
+            let dn_l = *grid.get(&(row + 1, col - 1)).unwrap_or(&'E');
+            let dn_r = *grid.get(&(row + 1, col + 1)).unwrap_or(&'E');
 
-        let up_left = *grid.get(&(row - 1, col - 1)).unwrap_or(&'E');
-        let dn_right = *grid.get(&(row + 1, col + 1)).unwrap_or(&'E');
-        let up_right = *grid.get(&(row - 1, col + 1)).unwrap_or(&'E');
-        let dn_left = *grid.get(&(row + 1, col - 1)).unwrap_or(&'E');
-
-
-        if let ('M', 'S') | ('S', 'M') = (up_left, dn_right) {
-            if let ('M', 'S') | ('S', 'M') = (dn_left, up_right) {
-                total += 1;
-            }
-        }
-    }
-    total
+            matches!((up_l, dn_r), ('M', 'S') | ('S', 'M'))
+                && matches!((dn_l, up_r), ('M', 'S') | ('S', 'M'))
+        })
+        .count()
 }
 
 #[cfg(test)]

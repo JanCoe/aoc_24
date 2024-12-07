@@ -3,8 +3,7 @@ use std::collections::BTreeMap;
 use std::ops::RangeInclusive;
 
 pub fn create_grid(data: &str) -> BTreeMap<(isize, isize), char> {
-    data
-        .lines()
+    data.lines()
         .enumerate()
         .flat_map(|(row, line)| {
             line.chars()
@@ -14,32 +13,43 @@ pub fn create_grid(data: &str) -> BTreeMap<(isize, isize), char> {
         .collect()
 }
 
-pub fn word_search(data: &str) -> i32 {
-    let mut total = 0;
+fn get_char(
+    grid: &BTreeMap<(isize, isize), char>,
+    centre: &(isize, isize),
+    direction: &(isize, isize),
+    distance: isize,
+) -> char {
+    *grid
+        .get(&(
+            centre.0 + direction.0 * distance,
+            centre.1 + direction.1 * distance,
+        ))
+        .unwrap_or(&'E')
+}
 
+pub fn word_search(data: &str) -> usize {
     let grid = create_grid(data);
 
     let values: RangeInclusive<isize> = -1..=1;
-    let directions = values.clone().into_iter().cartesian_product(values);
+    let directions: Vec<(isize, isize)> = values
+        .clone()
+        .into_iter()
+        .cartesian_product(values)
+        .collect();
 
-    for ((row, col), &ch) in &grid {
-        if ch != 'X' {
-            continue;
-        }
-        for (row_inc, col_inc) in directions.clone() {
-            if *grid.get(&(row + 1 * row_inc, col + 1 * col_inc)).unwrap_or(&'E') != 'M' {
-                continue;
-            }
-            if *grid.get(&(row + 2 * row_inc, col + 2 * col_inc)).unwrap_or(&'E') != 'A' {
-                continue;
-            }
-            if *grid.get(&(row + 3 * row_inc, col + 3 * col_inc)).unwrap_or(&'E') != 'S' {
-                continue;
-            }
-            total += 1;
-        }
-    }
-    total
+    grid.iter()
+        .filter(|(_, &ch)| ch == 'X')
+        .map(|(centre, _)| {
+            directions
+                .iter()
+                .filter(|&direction| {
+                    get_char(&grid, centre, direction, 1) == 'M'
+                        && get_char(&grid, centre, direction, 2) == 'A'
+                        && get_char(&grid, centre, direction, 3) == 'S'
+                })
+                .count()
+        })
+        .sum()
 }
 
 #[cfg(test)]

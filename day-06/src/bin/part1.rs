@@ -1,68 +1,50 @@
 use std::collections::{HashMap, HashSet};
 
+type Position = (isize, isize);
+type Puzzle = HashMap<Position, char>;
+
 #[derive(Debug, Eq, PartialEq)]
 enum Direction {
     North,
-    South,
     East,
+    South,
     West,
     Off,
 }
 
-type Position = (isize, isize);
-type Puzzle = HashMap<Position, char>;
+impl Direction {
+    fn turn_right(&mut self) -> Direction {
+        match self {
+            Direction::North => Direction::East,
+            Direction::East => Direction::South,
+            Direction::South => Direction::West,
+            Direction::West => Direction::North,
+            Direction::Off => Direction::Off,
+        }
+    }
+}
+
+fn new_position(position: &Position, direction: &Direction) -> Position {
+    match direction {
+        Direction::North => (position.0 - 1, position.1),
+        Direction::East => (position.0, position.1 + 1),
+        Direction::South => (position.0 + 1, position.1),
+        Direction::West => (position.0, position.1 - 1),
+        Direction::Off => (position.0, position.1),
+    }
+}
+
 
 fn step(pos: &mut Position, dir: &mut Direction, places: &mut HashSet<Position>, puzzle: &Puzzle) -> () {
-    match dir {
-        Direction::North => {
-            let try_position = (pos.0 - 1, pos.1);
-            let item = puzzle.get(&try_position).unwrap_or(&'Z');
-            match &item {
-                '.' | '^' => {
-                    *pos = try_position;
-                    places.insert(try_position);
-                }
-                'Z' => *dir = Direction::Off,
-                _ => *dir = Direction::East ,
-            }
+    let try_position = new_position(pos, dir);
+    let item = puzzle.get(&try_position).unwrap_or(&'Z');
+    match &item {
+        '.' | '^' => {
+            *pos = try_position;
+            places.insert(try_position);
         }
-        Direction::East => {
-            let try_position = (pos.0, pos.1 + 1);
-            let item = puzzle.get(&try_position).unwrap_or(&'Z');
-            match &item {
-                '.' | '^' => {
-                    *pos = try_position;
-                    places.insert(try_position);
-                }
-                'Z' => *dir = Direction::Off,
-                _ =>  *dir = Direction::South,
-            }
-        }
-        Direction::South => {
-            let try_position = (pos.0 + 1, pos.1);
-            let item = puzzle.get(&try_position).unwrap_or(&'Z');
-            match &item {
-                '.' | '^' => {
-                    *pos = try_position;
-                    places.insert(try_position);
-                }
-                'Z' => *dir = Direction::Off,
-                _ =>  *dir = Direction::West,
-            }
-        }
-        Direction::West => {
-            let try_position = (pos.0, pos.1 - 1);
-            let item = puzzle.get(&try_position).unwrap_or(&'Z');
-            match &item {
-                '.' | '^' => {
-                    *pos = try_position;
-                    places.insert(try_position);
-                }
-                'Z' => *dir = Direction::Off,
-                _ =>  *dir = Direction::North,
-            }
-        }
-        _ => (),
+        'Z' => *dir = Direction::Off,
+        _ => *dir = dir.turn_right(),
     }
 }
 

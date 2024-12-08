@@ -41,8 +41,7 @@ fn check_rule(update: &Vec<u16>, rule: &(u16, u16)) -> bool {
         != -1
 }
 
-pub fn func(data: &str) -> u16 {
-
+pub fn calc(data: &str) -> u16 {
     let rules: Vec<(u16, u16)> = data
         .lines()
         .filter(|line| line.contains('|'))
@@ -61,26 +60,11 @@ pub fn func(data: &str) -> u16 {
         .map(|line| line.split(',').map(|x| x.parse().unwrap()).collect())
         .collect();
 
-    let mut total = 0;
-    for update in updates.iter() {
-
-        let mut satisfies = true;
-
-        for rule in rules.iter() {
-            let check = check_rule(update, rule);
-
-            if !check {
-                satisfies = false;
-            }
-        }
-
-        if satisfies {
-            total += update[(update.len() + 1) / 2 - 1];
-        }
-    }
-
-    total
-
+    updates
+        .iter()
+        .filter(|x| rules.iter().all(|rule| check_rule(x, &rule)))
+        .map(|x| x[(x.len() + 1) / 2 - 1])
+        .sum()
 }
 
 #[cfg(test)]
@@ -88,7 +72,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_func() -> () {
+    fn test_calc() -> () {
         let data: &str = "47|53
 97|13
 97|61
@@ -117,6 +101,6 @@ mod tests {
 75,97,47,61,53
 61,13,29
 97,13,75,29,47";
-        assert_eq!(143, func(data));
+        assert_eq!(143, calc(data));
     }
 }

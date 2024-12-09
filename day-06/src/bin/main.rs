@@ -7,6 +7,6 @@ fn main() {
     let ans = part1::calc(data);
     println!("Part 1: {ans}");
 
-    // let ans = part2::func(data);
-    // println!("Part 2: {ans}");
+    let ans = part2::calc(data);
+    println!("Part 2: {ans}");
 }

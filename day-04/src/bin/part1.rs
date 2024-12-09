@@ -31,11 +31,7 @@ pub fn word_search(data: &str) -> usize {
     let grid = create_grid(data);
 
     let values: RangeInclusive<isize> = -1..=1;
-    let directions: Vec<(isize, isize)> = values
-        .clone()
-        .into_iter()
-        .cartesian_product(values)
-        .collect();
+    let directions: Vec<(isize, isize)> = values.clone().into_iter().cartesian_product(values).collect();
 
     grid.iter()
         .filter(|(_, &ch)| ch == 'X')

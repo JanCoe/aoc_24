@@ -34,7 +34,6 @@ fn new_position(position: &Position, direction: &Direction) -> Position {
     }
 }
 
-
 fn step(pos: &mut Position, dir: &mut Direction, places: &mut HashSet<Position>, puzzle: &Puzzle) -> () {
     let try_position = new_position(pos, dir);
     let item = puzzle.get(&try_position).unwrap_or(&'Z');
@@ -71,7 +70,7 @@ pub fn calc(data: &str) -> u16 {
     let mut direction = Direction::North;
     while direction != Direction::Off {
         step(&mut position, &mut direction, &mut places, &puzzle);
-    };
+    }
 
     places.iter().count() as u16
 }

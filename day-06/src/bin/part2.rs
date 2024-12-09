@@ -2,6 +2,7 @@ use std::collections::{HashMap, HashSet};
 
 type Position = (isize, isize);
 type Puzzle = HashMap<Position, char>;
+type Places = HashSet<(Position, Direction)>;
 
 #[derive(Debug, Eq, PartialEq, Hash, Clone)]
 enum Direction {
@@ -34,8 +35,13 @@ fn new_position(position: &Position, direction: &Direction) -> Position {
     }
 }
 
-
-fn step(pos: &mut Position, dir: &mut Direction, places: &mut HashSet<(Position, Direction)>, first_time: &mut bool, puzzle: &Puzzle) -> () {
+fn step(
+    pos: &mut Position,
+    dir: &mut Direction,
+    places: &mut Places,
+    first_time: &mut bool,
+    puzzle: &Puzzle,
+) {
     let try_position = new_position(pos, dir);
     let item = puzzle.get(&try_position).unwrap_or(&'Z');
     match &item {
@@ -43,13 +49,20 @@ fn step(pos: &mut Position, dir: &mut Direction, places: &mut HashSet<(Position,
             *pos = try_position;
             *first_time = places.insert((try_position, dir.clone()));
         }
-        'Z' => {*dir = Direction::Off; *pos = try_position; *first_time = true},
-        _ => {*dir = dir.turn_right(); *first_time = true},
+        'Z' => {
+            *dir = Direction::Off;
+            *pos = try_position;
+            *first_time = true
+        }
+        _ => {
+            *dir = dir.turn_right();
+            *first_time = true
+        }
     }
 }
 
 pub fn calc(data: &str) -> u16 {
-    let puzzle: Puzzle = data
+    let mut puzzle: Puzzle = data
         .lines()
         .enumerate()
         .flat_map(|(row, line)| {
@@ -66,10 +79,16 @@ pub fn calc(data: &str) -> u16 {
         .next()
         .unwrap();
 
+    let non_obstructions: Vec<Position> = puzzle
+        .iter()
+        .filter(|(_, &ch)| ch == '.')
+        .map(|(pos, _)| *pos)
+        .collect();
+
     let mut total = 0;
-    'obstacle: for obstacle in puzzle.keys() {
-        let mut puzzle_adj = puzzle.clone();
-        puzzle_adj.insert(*obstacle, '#');
+    for new_obstruction in non_obstructions {
+        // this could be improved by only placing obstructions on the original path.
+        puzzle.insert(new_obstruction, '#');
 
         let mut position = start_position.clone();
         let mut direction = Direction::North;
@@ -77,17 +96,25 @@ pub fn calc(data: &str) -> u16 {
         places.insert((position, direction.clone()));
         let mut first_time = true;
 
-        while direction != Direction::Off {
-            step(&mut position, &mut direction, &mut places, &mut first_time, &puzzle_adj);
+        loop {
+            step(
+                &mut position,
+                &mut direction,
+                &mut places,
+                &mut first_time,
+                &puzzle,
+            );
 
-            if direction == Direction::Off { continue 'obstacle;}
+            if direction == Direction::Off {
+                break;
+            }
 
             if !first_time {
                 total += 1;
-                continue 'obstacle;
+                break;
             }
-        };
-
+        }
+        puzzle.insert(new_obstruction, '.');
     }
     total
 }

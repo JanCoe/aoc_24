@@ -11,10 +11,7 @@ pub fn calc_distance(data: &str) -> i32 {
     left.sort();
     right.sort();
 
-    left.into_iter()
-        .zip(right)
-        .map(|(l, r)| (l - r).abs())
-        .sum()
+    left.into_iter().zip(right).map(|(l, r)| (l - r).abs()).sum()
 }
 
 #[cfg(test)]

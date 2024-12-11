@@ -1,9 +1,8 @@
 use itertools;
 use itertools::Itertools;
 
-pub fn calc(data: &str) -> usize {
-    let calibrations: Vec<(usize, Vec<usize>)> = data
-        .lines()
+pub fn get_calibrations(data: &str) -> Vec<(usize, Vec<usize>)> {
+    data.lines()
         .map(|line| {
             let mut split_line = line.split(':');
             let first = split_line.next().unwrap().parse().unwrap();
@@ -16,23 +15,25 @@ pub fn calc(data: &str) -> usize {
                 .collect();
             (first, second)
         })
-        .collect();
+        .collect()
+}
+
+pub fn calc(data: &str) -> usize {
+    let calibrations = get_calibrations(data);
 
     let mut result = 0;
     for calibration in calibrations {
-        let answer = calibration.0;
         let num_operators = calibration.1.iter().len() - 1;
         let first_number = *calibration.1.iter().next().unwrap();
         for operators in (1..=num_operators).map(|_| 0..=1).multi_cartesian_product() {
             let mut calculation = first_number;
             for (operator, number) in operators.into_iter().zip(calibration.1.iter().skip(1)) {
-                if operator == 0 {
-                    calculation *= number;
-                } else {
-                    calculation += number;
+                match operator {
+                    0 => calculation += number,
+                    _ => calculation *= number,
                 }
             }
-            if calculation == answer {
+            if calculation == calibration.0 {
                 result += calculation;
                 break;
             }
